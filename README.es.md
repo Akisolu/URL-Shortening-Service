@@ -1,6 +1,6 @@
 # 🔗 URL Shortening Service (Python MVC & Base62 Encoding)
 
-Español | [English](README.es.md)
+Español | [English](README.md)
 
 Un servicio backend para acortar enlaces de forma eficiente, diseñado bajo el patrón de arquitectura **MVC (Modelo-Vista-Controlador)** en Python, con soporte para redirecciones HTTP, conteo de métricas y algoritmo propio de codificación **Base62**.  
 
@@ -11,10 +11,10 @@ Desarrollada como parte de la serie de desafíos de backend de [roadmap.sh](http
 ## ✨ Características Principales
 
 * **🏛️ Arquitectura MVC Limpia:** Separación estricta de capas entre rutas/API (`main.py`), lógica de negocio (`controller.py`), capa de datos (`model.py`) y esquema SQL (`schema.sql`).
-* **🔠 Algoritmo de Codificación Base62:** Generación eficiente de claves cortas e identificadores únicos combinando timestamp y caracteres alfanuméricos.
-* **📊 Analítica y Métricas:** Seguimiento automático de la cantidad de clics (`click_count`) y timestamps de creación y última actualización.
+* **🔠 Algoritmo de Codificación Base62:** Generación determinista de códigos cortos a partir del identificador autoincremental (`id + 100000`) codificado en Base62, sin colisiones.
+* **📊 Analítica y Métricas:** Seguimiento automático de la cantidad de clics (`access_count`) y timestamps de creación y última actualización.
 * **↪️ Redirección HTTP 302:** Manejo correcto del protocolo HTTP para rastrear accesos sin forzar el caché permanente del navegador.
-* **🗄️ Persistencia de Datos:** Integración con base de datos SQL (SQLite/PostgreSQL) para la gestión segura de mapeos de URLs.
+* **🗄️ Persistencia de Datos:** Integración con base de datos SQLite para la gestión segura de mapeos de URLs.
 
 ---
 
@@ -33,7 +33,7 @@ Desarrollada como parte de la serie de desafíos de backend de [roadmap.sh](http
 
 * **Lenguaje:** Python 3.x
 * **Patrón de Diseño:** MVC (`Model-View-Controller`)
-* **Base de Datos:** SQL (`SQLite` / `PostgreSQL`)
+* **Base de Datos:** SQLite
 * **Algoritmo:** Custom `Base62` Encoding
 
 ## 🚀 Instalación y Uso
@@ -55,7 +55,7 @@ Tener Python 3 instalado en el sistema.
 
 3. **Ejecutar el servicio:**
 ```bash
-  python main.py
+  uvicorn main:app --reload
 ```
 
 ## 💡 Flujo de Trabajo (Workflow)
@@ -78,7 +78,7 @@ sequenceDiagram
     Note over Usuario, DB: Proceso de Redirección
     Usuario->>Main: Consulta URL Corta (/abc12)
     Main->>Model: Busca URL original e incrementa clics
-    Model->>DB: UPDATE click_count / SELECT original_url
+    Model->>DB: UPDATE access_count / SELECT original_url
     Main-->>Usuario: Redirección HTTP 302 a URL Original
 ```
 
@@ -95,7 +95,7 @@ sequenceDiagram
   "shortCode": "example"
 }
 ```
-**Nota**: shortCode es opcional; Si no se agrega, se genera uno aleatoriamente.  
+**Nota**: shortCode es opcional; si no se agrega, se genera automáticamente con Base62.  
 **Respuesta:** `(201 Creado)`
 
 ```json
@@ -104,8 +104,7 @@ sequenceDiagram
   "url": "https://example.com/",
   "shortCode": "example",
   "createdAt": "2026-07-06T13:25:00Z",
-  "updatedAt": "2026-07-06T13:25:00Z",
-  "accessCount": 0
+  "updatedAt": "2026-07-06T13:25:00Z"
 }
 ```
 ### 2. Redirigir una URL
@@ -115,6 +114,8 @@ sequenceDiagram
 ### 3. Recuperar estadísticas de URL
 * **Endpoint:** `GET /shorten/yourShortCode/stats`
 * **Respuesta:** `(200 OK)`
+
+> `GET /shorten/yourShortCode` devuelve los datos de la URL sin `accessCount` y **no** cuenta como clic: el contador solo se incrementa al seguir la redirección.
 
 ```json
 {
@@ -146,8 +147,7 @@ sequenceDiagram
   "url": "https://www.linux.org/",
   "shortCode": "linux-web-site",
   "createdAt": "2026-07-06T13:25:00Z",
-  "updatedAt": "2026-07-06T13:30:00Z",
-  "accessCount": 22
+  "updatedAt": "2026-07-06T13:30:00Z"
 }
 ```
 
