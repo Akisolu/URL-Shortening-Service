@@ -12,13 +12,13 @@ Developed as part of the backend challenge series at [roadmap.sh](https://roadma
 
 * **🏛️ Clean MVC Architecture:** Strict separation of layers between routes/APIs (`main.py`), business logic (`controller.py`), data layer (`model.py`), and SQL schema (`schema.sql`).
 
-* **🔠 Base62 Encoding Algorithm:** Efficient generation of short keys and unique identifiers by combining timestamps and alphanumeric characters.
+* **🔠 Base62 Encoding Algorithm:** Deterministic short codes derived from the autoincremented id (`id + 100000`) encoded in Base62, free of collisions.
 
-* **📊 Analytics and Metrics:** Automatic tracking of click count (`click_count`) and creation and last update timestamps.
+* **📊 Analytics and Metrics:** Automatic tracking of click count (`access_count`) and creation and last update timestamps.
 
 * **↪️ HTTP 302 Redirect:** Proper handling of the HTTP protocol to track access without forcing the browser's permanent cache.
 
-* **🗄️ Data Persistence:** Integration with SQL databases (SQLite/PostgreSQL) for secure URL mapping management.
+* **🗄️ Data Persistence:** Integration with a SQLite database for secure URL mapping management.
 
 ---
 
@@ -37,7 +37,7 @@ Developed as part of the backend challenge series at [roadmap.sh](https://roadma
 
 * **Language:** Python 3.x
 * **Design Pattern:** MVC (Model-View-Controller)
-* **Database:** SQL (SQLite / PostgreSQL)
+* **Database:** SQLite
 * **Algorithm:** Custom Base62 Encoding
 
 ## 🚀 Installation and Use
@@ -59,7 +59,7 @@ python init_database.py
 
 3. **Run the service:**
 ```bash
-python main.py
+uvicorn main:app --reload
 ```
 
 ## 💡 Workflow
@@ -90,7 +90,7 @@ User->>Main: Query Short URL (/abc12)
 
 Main->>Model: Searches for original URL and increments clicks
 
-Model->>DB: UPDATE click_count / SELECT original_url
+Model->>DB: UPDATE access_count / SELECT original_url
 
 Main->>User: HTTP 302 redirect to Original URL
 ```
@@ -108,7 +108,7 @@ Main->>User: HTTP 302 redirect to Original URL
   "shortCode": "example"
 }
 ```
-**Note**: ShortCode is optional; if not added, one is generated randomly.
+**Note**: ShortCode is optional; if not provided, one is generated automatically with Base62.
 
 **Response:** `(201 Created)`
 
@@ -118,8 +118,7 @@ Main->>User: HTTP 302 redirect to Original URL
   "url": "https://example.com/",
   "shortCode": "example",
   "createdAt": "2026-07-06T13:25:00Z",
-  "updatedAt": "2026-07-06T13:25:00Z",
-  "accessCount": 0
+  "updatedAt": "2026-07-06T13:25:00Z"
 }
 ```
 ### 2. Redirecting a URL
@@ -129,6 +128,8 @@ Main->>User: HTTP 302 redirect to Original URL
 ### 3. Retrieve URL statistics
 * **Endpoint:** `GET /shorten/yourShortCode/stats`
 * **Response:** `(200 OK)`
+
+> `GET /shorten/yourShortCode` returns the URL data without `accessCount` and does **not** count as a click: the counter only grows when the redirect is followed.
 
 ```json
 { 
@@ -160,8 +161,7 @@ Main->>User: HTTP 302 redirect to Original URL
   "url": "https://www.linux.org/",
   "shortCode": "linux-web-site",
   "createdAt": "2026-07-06T13:25:00Z",
-  "updatedAt": "2026-07-06T13:30:00Z",
-  "accessCount": 22
+  "updatedAt": "2026-07-06T13:30:00Z"
 }
 ```
 
