@@ -55,7 +55,8 @@ Tener Python 3 instalado en el sistema.
 
 3. **Ejecutar el servicio:**
 ```bash
-  uvicorn main:app --reload
+  python main.py
+  # o: uvicorn main:app --reload
 ```
 
 ## 💡 Flujo de Trabajo (Workflow)
