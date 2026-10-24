@@ -73,7 +73,7 @@ async def redirect(shortCode: str):
     
     return RedirectResponse(
         url, 
-        status_code=status.HTTP_301_MOVED_PERMANENTLY
+        status_code=status.HTTP_302_FOUND
     )
 
 @app.get("/", status_code=status.HTTP_200_OK)
