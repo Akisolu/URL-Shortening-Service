@@ -14,7 +14,7 @@ SHORT_CODE_OFFSET = 100_000
 
 def encode_base62(number: int) -> str:
     """
-        Encode a non-negative integer using the Base62 alphabet.
+    Encode a non-negative integer using the Base62 alphabet.
     """
     if number < 0:
         raise ValueError("Only non-negative integers can be encoded.")
@@ -63,7 +63,9 @@ class URLController:
         # Logic for retrieving the shortened URL details
         return self.db.get_shorten_url(shortCode, self.cursor)
 
-    def update_shorten_url(self, shortCode: str, url: HttpUrl, new_shortCode: str | None):
+    def update_shorten_url(
+        self, shortCode: str, url: HttpUrl, new_shortCode: str | None
+    ):
         url = str(url)  # Convert HttpUrl to string
         # If the shortCode does not exist, return a 404 error
         self._ensure_short_code_exists(shortCode)
@@ -76,7 +78,9 @@ class URLController:
         # If the URL is already registered, return a 409 error
         self._ensure_url_not_exists(url)
 
-        return self.db.update_shorten_url(shortCode, url, new_shortCode, self.cursor, self.conn)
+        return self.db.update_shorten_url(
+            shortCode, url, new_shortCode, self.cursor, self.conn
+        )
 
     def delete_shorten_url(self, shortCode: str):
         # If the shortCode does not exist, return a 404 error
@@ -89,48 +93,47 @@ class URLController:
         self._ensure_short_code_exists(shortCode)
 
         return self.db.get_shorten_url_stats(shortCode, self.cursor)
-    
+
     def access_url(self, shortCode):
         data = self.get_shorten_url(shortCode)
         url = data["url"]
         self.increment_clicks(shortCode)
         return url
-    
+
     def increment_clicks(self, shortCode: str):
         self.db.increment_counter(shortCode, self.cursor, self.conn)
-    
+
     def close(self):
         """
-            Close the database connection held by this controller.
+        Close the database connection held by this controller.
         """
         self.db.close(self.conn)
-    
+
     def _ensure_short_code_exists(self, shortCode: str):
         """
-            Raise a 404 if the short code does not exist.
+        Raise a 404 if the short code does not exist.
         """
         if not self.db.short_code_exists(shortCode, self.cursor):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Shortened URL not found."
+                status_code=status.HTTP_404_NOT_FOUND, detail="Shortened URL not found."
             )
-        
+
     def _ensure_not_short_code_exists(self, shortCode: str):
         """
-            Raise a 409 if the short code does not exist.
+        Raise a 409 if the short code does not exist.
         """
         if self.db.short_code_exists(shortCode, self.cursor):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Short Code is already registered."
+                detail="Short Code is already registered.",
             )
 
     def _ensure_url_not_exists(self, url: str):
         """
-            Raise a 409 error if the URL already exists.
+        Raise a 409 error if the URL already exists.
         """
         if self.db.url_exists(url, self.cursor):
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="URL is already registered."
+                detail="URL is already registered.",
             )
