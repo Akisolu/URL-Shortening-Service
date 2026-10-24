@@ -38,12 +38,10 @@ async def create_shorten_url(url: URLInput):
 @app.get("/shorten/{shortCode}", response_model=URLOutput, status_code=status.HTTP_200_OK)
 async def get_short_code_info(shortCode: str):
     repository = URLController()
-    data = repository.get_shorten_url(shortCode)
-    
-    # Incrementar contador de clicks
-    repository.increment_clicks(shortCode)
-    
-    return data
+
+    # This endpoint only reads metadata. Counting a click here inflates the
+    # metric, because the click is already counted when the redirect happens.
+    return repository.get_shorten_url(shortCode)
         
 
 @app.put("/shorten/{shortCode}", response_model=URLOutput, status_code=status.HTTP_200_OK)
