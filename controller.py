@@ -97,6 +97,12 @@ class URLController:
     def increment_clicks(self, shortCode: str):
         self.db.increment_counter(shortCode, self.cursor, self.conn)
     
+    def close(self):
+        """
+            Close the database connection held by this controller.
+        """
+        self.db.close(self.conn)
+    
     def _ensure_short_code_exists(self, shortCode: str):
         """
             Raise a 404 if the short code does not exist.
