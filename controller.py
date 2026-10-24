@@ -1,9 +1,32 @@
 from pydantic import HttpUrl
 from fastapi import HTTPException, status
-from datetime import datetime
 from model import Database
-import random
-import string
+from uuid import uuid4
+
+BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+
+# Generated codes are derived from the autoincremented id. The offset keeps the
+# first codes from being trivially enumerable (/1, /2, /3...).
+SHORT_CODE_OFFSET = 100_000
+
+
+def encode_base62(number: int) -> str:
+    """
+        Encode a non-negative integer using the Base62 alphabet.
+    """
+    if number < 0:
+        raise ValueError("Only non-negative integers can be encoded.")
+
+    if number == 0:
+        return BASE62_ALPHABET[0]
+
+    encoded = []
+    while number > 0:
+        number, remainder = divmod(number, 62)
+        encoded.append(BASE62_ALPHABET[remainder])
+
+    return "".join(reversed(encoded))
+
 
 class URLController:
     def __init__(self):
@@ -15,12 +38,19 @@ class URLController:
         self._ensure_url_not_exists(url)
 
         # If ShortCode is None, it generates one; otherwise, it uses the provided ShortCode.
-        if shortCode is None:
-            shortCode = self._generate_unique_short_code()
-        else:
+        if shortCode is not None:
             self._ensure_not_short_code_exists(shortCode)
+            return self.db.save_shorten_url(url, shortCode, self.cursor, self.conn)
 
-        data = self.db.save_shorten_url(url, shortCode, self.cursor, self.conn)
+        # A provisional code is required because short_code is NOT NULL and the
+        # final code depends on the autoincremented id, which only exists after
+        # the INSERT.
+        placeholder = f"_pending{uuid4().hex}"
+        data = self.db.save_shorten_url(url, placeholder, self.cursor, self.conn)
+
+        shortCode = encode_base62(data["id"] + SHORT_CODE_OFFSET)
+        self.db.update_short_code(placeholder, shortCode, self.cursor, self.conn)
+
         data["shortCode"] = shortCode
 
         return data
@@ -66,17 +96,6 @@ class URLController:
     
     def increment_clicks(self, shortCode: str):
         self.db.increment_counter(shortCode, self.cursor, self.conn)
-    
-    def _generate_unique_short_code(self):
-        """
-            Generate a unique 6-character short code.
-            Use numbers and uppercase and lowercase letters.
-        """
-        chars = string.ascii_letters + string.digits
-        while True:
-            code = ''.join(random.choices(chars, k=6))
-            if not self.db.short_code_exists(code, self.cursor):
-                return code
     
     def _ensure_short_code_exists(self, shortCode: str):
         """

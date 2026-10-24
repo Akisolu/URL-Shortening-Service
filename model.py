@@ -29,6 +29,16 @@ class Database:
             "updatedAt": time_and_hours,
         }
     
+    def update_short_code(self, current_short_code: str, new_short_code: str, cursor, connection):
+        """
+            Replaces the short code of an existing row
+        """
+        cursor.execute(
+            "UPDATE urls SET short_code = ? WHERE short_code = ?",
+            (new_short_code, current_short_code)
+        )
+        connection.commit()
+
     def get_shorten_url(self, shortCode: str, cursor):
         """
             Get a URL using the shortcode from the database
