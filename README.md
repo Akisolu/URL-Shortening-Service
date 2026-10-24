@@ -59,7 +59,8 @@ python init_database.py
 
 3. **Run the service:**
 ```bash
-uvicorn main:app --reload
+python main.py
+# or: uvicorn main:app --reload
 ```
 
 ## 💡 Workflow
