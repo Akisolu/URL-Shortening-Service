@@ -1,9 +1,9 @@
 import os
 import sqlite3
 
-DB_DIRECTORY = 'database'
-DB_PATH = os.path.join(DB_DIRECTORY, 'url_shortener.db')
-SCHEMA_PATH = 'schema.sql'
+DB_DIRECTORY = "database"
+DB_PATH = os.path.join(DB_DIRECTORY, "url_shortener.db")
+SCHEMA_PATH = "schema.sql"
 
 # Frozen copy of the schema with the corrected short_code type.
 # Used only to rebuild databases created with the old INTEGER declaration.
@@ -63,7 +63,7 @@ cursor = conexion.cursor()
 migrated = migrate_short_code_to_text(cursor)
 
 # Read the schema from the schema.sql file
-with open(SCHEMA_PATH, 'r', encoding='utf-8') as schema_file:
+with open(SCHEMA_PATH, "r", encoding="utf-8") as schema_file:
     schema = schema_file.read()
 
 # Apply the schema to the database
