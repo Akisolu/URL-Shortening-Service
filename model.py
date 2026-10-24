@@ -156,25 +156,19 @@ class Database:
     
     def increment_counter(self, shortCode: str, cursor, conn):
         """
-            Increments the access count for a URL.
+            Atomically increments the access count for a URL.
+            Returns the number of rows affected (0 if the code does not exist).
         """
-
+        # A single UPDATE avoids the read-modify-write race of a SELECT + UPDATE
+        # pair, so concurrent requests cannot overwrite each other's increment.
         cursor.execute(
-            "SELECT access_count FROM urls WHERE short_code = ?",
+            "UPDATE urls SET access_count = access_count + 1 WHERE short_code = ?",
             (shortCode,)
         )
 
-        result = cursor.fetchone()
-
-        acces_counter = result[0]
-        acces_counter += 1
-        
-        cursor.execute(
-            "UPDATE urls SET access_count = ? WHERE short_code = ?",
-            (acces_counter, shortCode)
-        )
-
         conn.commit()
+
+        return cursor.rowcount
 
     def close(self, connection):
         connection.close()
