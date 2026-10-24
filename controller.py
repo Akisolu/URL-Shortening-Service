@@ -1,7 +1,9 @@
-from pydantic import HttpUrl
-from fastapi import HTTPException, status
-from model import Database
 from uuid import uuid4
+
+from fastapi import HTTPException, status
+from pydantic import HttpUrl
+
+from model import Database
 
 BASE62_ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 

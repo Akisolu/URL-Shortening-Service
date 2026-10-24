@@ -1,5 +1,6 @@
 import sqlite3 as db
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+
 
 class Database:
     def conect(self, path: str, name: str):
@@ -13,7 +14,7 @@ class Database:
             Save a URL to the database
         """
 
-        time_and_hours = datetime.now(timezone.utc).isoformat(timespec='seconds')
+        time_and_hours = datetime.now(UTC).isoformat(timespec='seconds')
 
         # Logic for saving the shortened URL to the database
         cursor.execute(
@@ -66,7 +67,7 @@ class Database:
             Updates a URL associated with a shortcode in the database
         """
 
-        time_and_hours = datetime.now(timezone.utc).isoformat(timespec='seconds')
+        time_and_hours = datetime.now(UTC).isoformat(timespec='seconds')
 
         # Logic for updating the shortened URL in the database
         cursor.execute(
