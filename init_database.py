@@ -1,5 +1,5 @@
-import sqlite3
 import os
+import sqlite3
 
 DB_DIRECTORY = 'database'
 DB_PATH = os.path.join(DB_DIRECTORY, 'url_shortener.db')

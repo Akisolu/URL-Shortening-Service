@@ -1,7 +1,8 @@
-from fastapi import Depends, FastAPI, status
-from pydantic import BaseModel, HttpUrl
 from datetime import datetime
+
+from fastapi import Depends, FastAPI, status
 from fastapi.responses import RedirectResponse
+from pydantic import BaseModel, HttpUrl
 
 from controller import URLController
 
@@ -63,7 +64,6 @@ async def update_shorten_url(shortCode: str, url: URLInput, repository: URLContr
 @app.delete("/shorten/{shortCode}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_shorten_url(shortCode: str, repository: URLController = Depends(get_controller)):
     repository.delete_shorten_url(shortCode)
-    return None
 
 
 @app.get("/shorten/{shortCode}/stats", response_model=URLOutputStats, status_code=status.HTTP_200_OK)
