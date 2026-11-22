@@ -1,6 +1,12 @@
 # 🔗 URL Shortening Service (Python MVC & Base62 Encoding)
 
-[Spanish](README.es.md) | English
+**What it does:** Turns long links into short ones and counts how many times each short link was clicked, through a simple API.  
+**Why it matters:** Long links are hard to share and give no idea of whether anyone actually opened them.
+
+**Qué hace:** Convierte enlaces largos en cortos y cuenta cuántas veces se hizo clic en cada uno, mediante una API sencilla.  
+**Por qué importa:** Los enlaces largos son difíciles de compartir y no permiten saber si alguien los abrió realmente.
+
+> 📄 Versión completa en español: [README.es.md](README.es.md)
 
 A backend service for efficiently shortening links, designed using the **MVC (Model-View-Controller)** architectural pattern in Python, with support for HTTP redirects, metric tracking, and a custom **Base62** encoding algorithm.
 
@@ -48,7 +54,7 @@ Python 3 must be installed on your system.
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/Aki-new/URL-Shortening-Service.git
+git clone https://github.com/Akisolu/URL-Shortening-Service.git
 cd URL-Shortening-Service
 ```
 
